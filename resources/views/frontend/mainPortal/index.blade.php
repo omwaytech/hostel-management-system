@@ -57,8 +57,7 @@
                 </div>
 
                 <!-- Search Button -->
-                <button type="button" id="searchButton"
-                    class="p-3 sm:p-4 md:p-5 hover:bg-gray-50 transition-colors rounded-r-full">
+                <button type="button" class="p-3 sm:p-4 md:p-5 hover:bg-gray-50 transition-colors rounded-r-full">
                     <svg xmlns="http://www.w3.org/2000/svg" class="text-[#21282C]/80" width="24" height="24"
                         viewBox="0 0 24 24">
                         <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
@@ -70,7 +69,7 @@
         </div>
 
         <script>
-            const hostelsData = Array.isArray(@json($hostels)) ? @json($hostels) : Object.values(@json($hostels));
+            const hostelsData = @json($hostels);
             let selectedCity = "All Cities";
 
             // --- Dropdown toggle ---
@@ -137,7 +136,6 @@
             // --- Search input ---
             const searchInput = document.getElementById('hostelSearch');
             const searchResults = document.getElementById('searchResults');
-            const searchButton = document.getElementById('searchButton');
 
             searchInput.addEventListener('input', () => {
                 const query = searchInput.value.trim();
@@ -146,28 +144,6 @@
                 } else {
                     searchResults.innerHTML = '';
                     searchResults.style.display = 'none';
-                }
-            });
-
-            // Handle Enter key press
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    const query = searchInput.value.trim();
-                    if (query.length >= 3) {
-                        filterHostels(query);
-                    }
-                }
-            });
-
-            // Handle search button click
-            searchButton.addEventListener('click', () => {
-                const query = searchInput.value.trim();
-                if (query.length >= 3) {
-                    filterHostels(query);
-                } else if (query.length > 0) {
-                    searchResults.innerHTML =
-                        '<div class="px-4 py-2 text-gray-500">Please enter at least 3 characters</div>';
-                    searchResults.style.display = 'block';
                 }
             });
 
@@ -650,13 +626,9 @@
                     </div>
                 </div>
                 <!-- Clear Filters Button - Tablet and Desktop -->
-                <!-- <a href="{{ route('home') }}#hostelListing"
-                    class="flex items-center justify-center font-heading text-sm rounded-[50px] w-full px-6 py-2.5 text-center text-white duration-200 bg-[#2B6CB0] border-2 border-[#2B6CB0] nline-flex hover:bg-transparent hover:border-[#2B6CB0] hover:text-[#2B6CB0] focus:outline-none focus-visible:outline-[#2B6CB0]  focus-visible:ring-[#2B6CB0]">
-                    List Your Hostel
-                </a> -->
                 <button onclick="resetFilters()" id="searchBtn"
-                    class="hidden md:flex items-center justify-center font-heading text-sm rounded-[50px] px-3 py-3 gap-1 text-center text-white duration-200 bg-[#2B6CB0] border-2 border-[#2B6CB0] hover:bg-transparent hover:border-[#2B6CB0] hover:text-[#2B6CB0] focus:outline-none focus-visible:outline-[#2B6CB0] focus-visible:ring-[#2B6CB0] self-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 21 21">
+                    class="hidden md:flex lg:w-auto lg:px-4 xl:flex-initial items-center justify-center font-heading text-sm rounded-[50px] w-full px-6 py-2.5 text-center text-white duration-200 bg-[#2B6CB0] border-2 border-[#2B6CB0] nline-flex hover:bg-transparent hover:border-[#2B6CB0] hover:text-[#2B6CB0] focus:outline-none focus-visible:outline-[#2B6CB0]  focus-visible:ring-[#2B6CB0] ">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 21">
                         <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                             d="m15.5 15.5l-10-10zm0-10l-10 10" stroke-width="1" />
                     </svg>
@@ -667,7 +639,7 @@
             <!-- Mobile Clear Filters Button -->
 
             <button onclick="resetFilters()" id="searchBtnMobile"
-                class="w-full mt-4 text-sm font-medium bg-white text-gray-900 border border-gray-300 px-6 h-[45px] rounded-full hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors md:hidden flex items-center justify-center gap-2">
+                class="w-full mt-4 text-sm font-medium bg-white text-gray-900 border border-gray-300 px-6 h-[55px] rounded-full hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors md:hidden flex items-center justify-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 21 21">
                     <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                         d="m15.5 15.5l-10-10zm0-10l-10 10" stroke-width="1" />
@@ -757,7 +729,7 @@
             <div id="carousel" class="flex transition-transform duration-500 ease-in-out gap-4">
                 <!-- Card 1 -->
                 @foreach ($hostels as $hostel)
-                <div class="flex-none w-full md:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)] 2xl:w-[calc(25%-12px)]">
+                <div class="flex-none w-full md:w-[calc(50%-8px)] xl:w-[calc(33.333%-11px)] 2xl:w-[calc(25%-12px)]">
                     <div class="bg-white rounded-[20px] border border-color box-shadow  overflow-hidden">
                         <!-- Image Slider -->
                         <div class="relative">
@@ -888,6 +860,11 @@
 <section class="relative py-12 md:py-20 lg:mt-[70px] bg-[#f2f6fa]">
     <!-- Content Container -->
     <div class="w-full px-4 sm:px-6 md:px-12 lg:px-20 relative">
+        <!-- Welcome Text -->
+        <p class="text-[#8B9BAC] font-heading text-sm md:text-base mb-4 md:mb-6">
+            Welcome to {{ $systemConfigs['site_name'] ?? 'HostelHub' }}
+        </p>
+
         <!-- Two Column Layout -->
         <div class="flex flex-col lg:flex-row justify-between gap-8 lg:gap-10 mb-12 md:mb-16">
             <!-- Left Column - Main Heading -->
@@ -898,6 +875,7 @@
                     </span>
                 </h2>
             </div>
+
             <!-- Right Column - Mission Text & Features -->
             <div class="lg:w-1/2">
                 <p class="text-body font-heading text-justify font-regular text-base md:text-lg !leading-[30px] mb-6">
@@ -905,11 +883,13 @@
                 </p>
             </div>
         </div>
+
         <!-- Hero Image -->
         @if (isset($systemConfigs['background_image']) && $systemConfigs['background_image'])
         <div class="w-full">
             <img src="{{ asset('storage/images/adminConfigImages/' . $systemConfigs['background_image']) }}"
-                alt="Happy residents using HostelHub" class="w-full h-96 rounded-[20px]  object-cover max-h-[600px]">
+                alt="Happy residents using HostelHub"
+                class="w-full h-auto rounded-3xl shadow-2xl object-cover max-h-[600px]">
         </div>
         @endif
     </div>
@@ -917,7 +897,7 @@
 <!-- Mid Section end -->
 
 <!-- Recommendation hostels start -->
-<div class="bg-gray-50 p-4 md:p-8 px-4 sm:px-6 md:px-12 mt-14 lg:px-20">
+<div class="bg-gray-50 p-4 md:p-8 px-4 sm:px-6 md:px-12 lg:px-20">
     <div class="max-w-8xl mx-auto">
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
@@ -941,8 +921,8 @@
         </div>
 
         <!-- Slider Container -->
-        <div class="relative overflow-hidden z-0">
-            <div id="sliderContainer" class="slider-container flex gap-4 overflow-x-hidden">
+        <div class="relative overflow-hidden z-10">
+            <div id="sliderContainer" class="slider-container flex gap-5 overflow-x-hidden">
                 <!-- Cards will be generated by JavaScript -->
             </div>
         </div>
@@ -952,6 +932,10 @@
 <script>
     (function() {
         const hostelsData = @json($hostelsData);
+        console.log('Recommendation Hostels Data:', hostelsData);
+        console.log('Data type:', typeof hostelsData);
+        console.log('Is array:', Array.isArray(hostelsData));
+
         class CardSlider {
             constructor(cardElement, images, cardIndex) {
                 this.cardElement = cardElement;
@@ -1033,7 +1017,7 @@
 
         function createCard(hostel, index) {
             return `
-                    <div class="flex-shrink-0 w-full sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)] 2xl:w-[calc(25%-12px)] bg-white rounded-[20px] border border-color box-shadow overflow-hidden  hostel-card" data-card="${index}">
+                    <div class="flex-shrink-0 w-full sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] bg-white rounded-[20px] border border-color box-shadow overflow-hidden  hostel-card" data-card="${index}">
                         <div class="relative group">
                         <!-- black overlay -->
                         <div class="absolute inset-0 bg-black/35 z-10 "></div>
@@ -1133,13 +1117,12 @@
         function getCardWidth() {
             const card = document.querySelector('.hostel-card');
             if (!card) return 0;
-            return card.offsetWidth + 16; // gap-4 = 16px
+            return card.offsetWidth + 24;
         }
 
         function getCardsPerView() {
             const width = window.innerWidth;
-            if (width > 1440) return 4;
-            if (width >= 1024) return 3;
+            if (width >= 1024) return 4;
             if (width >= 640) return 2;
             return 1;
         }
@@ -1512,7 +1495,7 @@
 <!-- Listing End -->
 
 <!-- Reviews Section start -->
-<section id="reviews-section" class=" bg-[#f2f6fa]/80 py-12 md:py-16 mt-[70px]">
+<section id="reviews-section" class=" bg-[#E6ECFF]/15 py-12 md:py-16 mt-[70px]">
     <div class=" container mx-auto px-4 md:px-8 lg:px-20 max-w-[1920px]">
         <!-- Section Header -->
         <div class="mb-5">
