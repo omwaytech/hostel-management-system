@@ -69,21 +69,21 @@
         </div>
 
         <script>
-        const hostelsData = @json($hostels);
-        let selectedCity = "All Cities";
+            const hostelsData = @json($hostels);
+            let selectedCity = "All Cities";
 
-        // --- Dropdown toggle ---
-        const dropdownButton = document.getElementById('dropdownButton');
-        const selectedLocation = document.getElementById('selectedLocation');
+            // --- Dropdown toggle ---
+            const dropdownButton = document.getElementById('dropdownButton');
+            const selectedLocation = document.getElementById('selectedLocation');
 
-        // Create dropdown menu as fixed positioned element
-        const dropdownMenu = document.createElement('div');
-        dropdownMenu.id = 'dropdownMenu';
-        dropdownMenu.style.display = 'none';
-        dropdownMenu.style.position = 'fixed';
-        dropdownMenu.style.zIndex = '9999';
-        dropdownMenu.className = 'w-48 bg-white rounded-lg border border-color py-2 shadow-lg';
-        dropdownMenu.innerHTML = `
+            // Create dropdown menu as fixed positioned element
+            const dropdownMenu = document.createElement('div');
+            dropdownMenu.id = 'dropdownMenu';
+            dropdownMenu.style.display = 'none';
+            dropdownMenu.style.position = 'fixed';
+            dropdownMenu.style.zIndex = '9999';
+            dropdownMenu.className = 'w-48 bg-white rounded-lg border border-color py-2 shadow-lg';
+            dropdownMenu.innerHTML = `
                 <div class="dropdown-item px-4 py-2 cursor-pointer hover:bg-[#e5eeff]/60 flex items-center gap-2" data-value="Near Me" id="nearMeOption">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
@@ -98,81 +98,81 @@
                 <div class="dropdown-item px-4 py-2 cursor-pointer hover:bg-[#e5eeff]/60" data-value="Bhaktapur">Bhaktapur</div>
                 <div class="dropdown-item px-4 py-2 cursor-pointer hover:bg-[#e5eeff]/60" data-value="Chitwan">Chitwan</div>
             `;
-        document.body.appendChild(dropdownMenu);
+            document.body.appendChild(dropdownMenu);
 
-        // Position dropdown below button
-        function positionDropdown() {
-            const rect = dropdownButton.getBoundingClientRect();
-            dropdownMenu.style.top = (rect.bottom + 8) + 'px';
-            dropdownMenu.style.left = rect.left + 'px';
-        }
-
-        dropdownButton.addEventListener('click', () => {
-            if (dropdownMenu.style.display === 'none') {
-                positionDropdown();
-                dropdownMenu.style.display = 'block';
-            } else {
-                dropdownMenu.style.display = 'none';
+            // Position dropdown below button
+            function positionDropdown() {
+                const rect = dropdownButton.getBoundingClientRect();
+                dropdownMenu.style.top = (rect.bottom + 8) + 'px';
+                dropdownMenu.style.left = rect.left + 'px';
             }
-        });
 
-        // Dropdown selection
-        dropdownMenu.querySelectorAll('.dropdown-item').forEach(item => {
-            item.addEventListener('click', async () => {
-                selectedCity = item.getAttribute('data-value');
+            dropdownButton.addEventListener('click', () => {
+                if (dropdownMenu.style.display === 'none') {
+                    positionDropdown();
+                    dropdownMenu.style.display = 'block';
+                } else {
+                    dropdownMenu.style.display = 'none';
+                }
+            });
 
-                // Handle Near Me option
-                if (selectedCity === 'Near Me') {
-                    await handleNearMe();
+            // Dropdown selection
+            dropdownMenu.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', async () => {
+                    selectedCity = item.getAttribute('data-value');
+
+                    // Handle Near Me option
+                    if (selectedCity === 'Near Me') {
+                        await handleNearMe();
+                        return;
+                    }
+
+                    selectedLocation.textContent = selectedCity;
+                    dropdownMenu.style.display = 'none';
+                    filterHostels();
+                });
+            });
+
+            // --- Search input ---
+            const searchInput = document.getElementById('hostelSearch');
+            const searchResults = document.getElementById('searchResults');
+
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.trim();
+                if (query.length >= 3) {
+                    filterHostels(query);
+                } else {
+                    searchResults.innerHTML = '';
+                    searchResults.style.display = 'none';
+                }
+            });
+
+            // --- Filtering function ---
+            function filterHostels(query = '') {
+                let filtered = hostelsData;
+
+                // Filter by city if selected
+                if (selectedCity !== "All Cities") {
+                    filtered = filtered.filter(h => h.location === selectedCity);
+                }
+
+                // Filter by search input
+                if (query.length >= 3) {
+                    filtered = filtered.filter(h => h.name.toLowerCase().includes(query.toLowerCase()));
+                }
+
+                renderResults(filtered);
+            }
+
+            // --- Render results ---
+            function renderResults(hostels) {
+                if (hostels.length === 0) {
+                    searchResults.innerHTML = '<div class="px-4 py-2 text-gray-500">No hostels found</div>';
+                    searchResults.style.display = 'block';
                     return;
                 }
 
-                selectedLocation.textContent = selectedCity;
-                dropdownMenu.style.display = 'none';
-                filterHostels();
-            });
-        });
-
-        // --- Search input ---
-        const searchInput = document.getElementById('hostelSearch');
-        const searchResults = document.getElementById('searchResults');
-
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value.trim();
-            if (query.length >= 3) {
-                filterHostels(query);
-            } else {
-                searchResults.innerHTML = '';
-                searchResults.style.display = 'none';
-            }
-        });
-
-        // --- Filtering function ---
-        function filterHostels(query = '') {
-            let filtered = hostelsData;
-
-            // Filter by city if selected
-            if (selectedCity !== "All Cities") {
-                filtered = filtered.filter(h => h.location === selectedCity);
-            }
-
-            // Filter by search input
-            if (query.length >= 3) {
-                filtered = filtered.filter(h => h.name.toLowerCase().includes(query.toLowerCase()));
-            }
-
-            renderResults(filtered);
-        }
-
-        // --- Render results ---
-        function renderResults(hostels) {
-            if (hostels.length === 0) {
-                searchResults.innerHTML = '<div class="px-4 py-2 text-gray-500">No hostels found</div>';
-                searchResults.style.display = 'block';
-                return;
-            }
-
-            searchResults.innerHTML = hostels.map(h => `
+                searchResults.innerHTML = hostels.map(h => `
                     <a href="/hostel-system/hostel-detail/${h.slug}">
                         <div class="px-4 py-3 border-b border-color hover:bg-[#e5eeff]/60 cursor-pointer flex flex-col gap-1">
                             <div class="font-medium text-color">${h.name}</div>
@@ -183,156 +183,156 @@
                     </a>
                     `).join('');
 
-            searchResults.style.display = 'block';
-        }
-
-        // --- Handle Near Me ---
-        async function handleNearMe() {
-            // Check if geolocation is supported
-            if (!navigator.geolocation) {
-                alert('Geolocation is not supported by your browser');
-                return;
+                searchResults.style.display = 'block';
             }
 
-            // Show loading state
-            selectedLocation.textContent = 'Getting location...';
+            // --- Handle Near Me ---
+            async function handleNearMe() {
+                // Check if geolocation is supported
+                if (!navigator.geolocation) {
+                    alert('Geolocation is not supported by your browser');
+                    return;
+                }
 
-            try {
-                // Request user location
-                const position = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject, {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
+                // Show loading state
+                selectedLocation.textContent = 'Getting location...';
+
+                try {
+                    // Request user location
+                    const position = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 0
+                        });
                     });
-                });
 
-                const latitude = position.coords.latitude;
-                const longitude = position.coords.longitude;
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
 
-                // Update UI
-                selectedLocation.innerHTML = `
+                    // Update UI
+                    selectedLocation.innerHTML = `
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                             </svg>
                             Near Me
                         `;
-                dropdownMenu.style.display = 'none';
+                    dropdownMenu.style.display = 'none';
 
-                // Fetch nearby hostels
-                const response = await fetch("{{ route('home.nearMe') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                            'content')
-                    },
-                    body: JSON.stringify({
-                        latitude: latitude,
-                        longitude: longitude
-                    })
-                });
+                    // Fetch nearby hostels
+                    const response = await fetch("{{ route('home.nearMe') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                'content')
+                        },
+                        body: JSON.stringify({
+                            latitude: latitude,
+                            longitude: longitude
+                        })
+                    });
 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch nearby hostels');
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch nearby hostels');
+                    }
+
+                    const data = await response.json();
+
+                    if (data.count === 0) {
+                        searchResults.innerHTML =
+                            '<div class="px-4 py-2 text-gray-500">No hostels found near you</div>';
+                        searchResults.style.display = 'block';
+                    } else {
+                        renderResults(data.hostels);
+                        // Show a success message
+                        console.log(`Found ${data.count} hostels near you`);
+                    }
+
+                } catch (error) {
+                    console.error('Error getting location:', error);
+
+                    let errorMessage = 'Unable to get your location';
+                    if (error.code === 1) {
+                        errorMessage =
+                            'Location permission denied. Please enable location access in your browser settings.';
+                    } else if (error.code === 2) {
+                        errorMessage = 'Location unavailable. Please check your device settings.';
+                    } else if (error.code === 3) {
+                        errorMessage = 'Location request timed out. Please try again.';
+                    }
+
+                    alert(errorMessage);
+                    selectedLocation.textContent = 'All Cities';
+                    selectedCity = 'All Cities';
+                }
+            }
+
+            // Close dropdown when scrolling
+            window.addEventListener('scroll', function() {
+                if (dropdownMenu.style.display === 'block') {
+                    dropdownMenu.style.display = 'none';
+                }
+            });
+
+            // Close search results when clicking outside
+            document.addEventListener('click', function(e) {
+                const searchBar = document.querySelector('.bg-white.rounded-full');
+
+                // Close search results if clicking outside search bar
+                if (searchBar && !searchBar.contains(e.target)) {
+                    searchResults.innerHTML = '';
+                    searchResults.style.display = 'none';
                 }
 
-                const data = await response.json();
-
-                if (data.count === 0) {
-                    searchResults.innerHTML =
-                        '<div class="px-4 py-2 text-gray-500">No hostels found near you</div>';
-                    searchResults.style.display = 'block';
-                } else {
-                    renderResults(data.hostels);
-                    // Show a success message
-                    console.log(`Found ${data.count} hostels near you`);
+                // Close dropdown if clicking outside dropdown area
+                if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                    dropdownMenu.style.display = 'none';
                 }
+            });
 
-            } catch (error) {
-                console.error('Error getting location:', error);
+            // Wait for DOM to be fully loaded
+            // document.addEventListener('DOMContentLoaded', function() {
+            //     // Dropdown functionality
+            //     const dropdownButton = document.getElementById('dropdownButton');
+            //     const dropdownMenu = document.getElementById('dropdownMenu');
+            //     const dropdownArrow = document.getElementById('dropdownArrow');
+            //     const selectedLocation = document.getElementById('selectedLocation');
+            //     const dropdownItems = document.querySelectorAll('.dropdown-item');
 
-                let errorMessage = 'Unable to get your location';
-                if (error.code === 1) {
-                    errorMessage =
-                        'Location permission denied. Please enable location access in your browser settings.';
-                } else if (error.code === 2) {
-                    errorMessage = 'Location unavailable. Please check your device settings.';
-                } else if (error.code === 3) {
-                    errorMessage = 'Location request timed out. Please try again.';
-                }
+            //     // Toggle dropdown
+            //     dropdownButton.addEventListener('click', function(e) {
+            //         e.preventDefault();
+            //         e.stopPropagation();
 
-                alert(errorMessage);
-                selectedLocation.textContent = 'All Cities';
-                selectedCity = 'All Cities';
-            }
-        }
+            //         if (dropdownMenu.style.display === 'none' || dropdownMenu.style.display === '') {
+            //             dropdownMenu.style.display = 'block';
+            //             dropdownArrow.style.transform = 'rotate(180deg)';
+            //         } else {
+            //             dropdownMenu.style.display = 'none';
+            //             dropdownArrow.style.transform = 'rotate(0deg)';
+            //       S  }
+            //     });
 
-        // Close dropdown when scrolling
-        window.addEventListener('scroll', function() {
-            if (dropdownMenu.style.display === 'block') {
-                dropdownMenu.style.display = 'none';
-            }
-        });
+            //     // Select item
+            //     dropdownItems.forEach(function(item) {
+            //         item.addEventListener('click', function() {
+            //             const value = item.getAttribute('data-value');
+            //             selectedLocation.textContent = value;
+            //             dropdownMenu.style.display = 'none';
+            //             dropdownArrow.style.transform = 'rotate(0deg)';
+            //         });
+            //     });
 
-        // Close search results when clicking outside
-        document.addEventListener('click', function(e) {
-            const searchBar = document.querySelector('.bg-white.rounded-full');
-
-            // Close search results if clicking outside search bar
-            if (searchBar && !searchBar.contains(e.target)) {
-                searchResults.innerHTML = '';
-                searchResults.style.display = 'none';
-            }
-
-            // Close dropdown if clicking outside dropdown area
-            if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                dropdownMenu.style.display = 'none';
-            }
-        });
-
-        // Wait for DOM to be fully loaded
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     // Dropdown functionality
-        //     const dropdownButton = document.getElementById('dropdownButton');
-        //     const dropdownMenu = document.getElementById('dropdownMenu');
-        //     const dropdownArrow = document.getElementById('dropdownArrow');
-        //     const selectedLocation = document.getElementById('selectedLocation');
-        //     const dropdownItems = document.querySelectorAll('.dropdown-item');
-
-        //     // Toggle dropdown
-        //     dropdownButton.addEventListener('click', function(e) {
-        //         e.preventDefault();
-        //         e.stopPropagation();
-
-        //         if (dropdownMenu.style.display === 'none' || dropdownMenu.style.display === '') {
-        //             dropdownMenu.style.display = 'block';
-        //             dropdownArrow.style.transform = 'rotate(180deg)';
-        //         } else {
-        //             dropdownMenu.style.display = 'none';
-        //             dropdownArrow.style.transform = 'rotate(0deg)';
-        //       S  }
-        //     });
-
-        //     // Select item
-        //     dropdownItems.forEach(function(item) {
-        //         item.addEventListener('click', function() {
-        //             const value = item.getAttribute('data-value');
-        //             selectedLocation.textContent = value;
-        //             dropdownMenu.style.display = 'none';
-        //             dropdownArrow.style.transform = 'rotate(0deg)';
-        //         });
-        //     });
-
-        //     // Close dropdown when clicking outside
-        //     document.addEventListener('click', function(e) {
-        //         if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-        //             dropdownMenu.style.display = 'none';
-        //             dropdownArrow.style.transform = 'rotate(0deg)';
-        //         }
-        //     });
-        // });
+            //     // Close dropdown when clicking outside
+            //     document.addEventListener('click', function(e) {
+            //         if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            //             dropdownMenu.style.display = 'none';
+            //             dropdownArrow.style.transform = 'rotate(0deg)';
+            //         }
+            //     });
+            // });
         </script>
 
         <!-- Stats Section -->
@@ -921,7 +921,7 @@
         </div>
 
         <!-- Slider Container -->
-        <div class="relative overflow-hidden z-0">
+        <div class="relative overflow-hidden z-10">
             <div id="sliderContainer" class="slider-container flex gap-5 overflow-x-hidden">
                 <!-- Cards will be generated by JavaScript -->
             </div>
@@ -930,93 +930,93 @@
 </div>
 
 <script>
-(function() {
-    const hostelsData = @json($hostelsData);
-    console.log('Recommendation Hostels Data:', hostelsData);
-    console.log('Data type:', typeof hostelsData);
-    console.log('Is array:', Array.isArray(hostelsData));
-    
-    class CardSlider {
-        constructor(cardElement, images, cardIndex) {
-            this.cardElement = cardElement;
-            this.images = images;
-            this.cardIndex = cardIndex;
-            this.currentIndex = 0;
-            this.autoSlideInterval = null;
-            this.isTransitioning = false;
-            this.init();
-        }
+    (function() {
+        const hostelsData = @json($hostelsData);
+        console.log('Recommendation Hostels Data:', hostelsData);
+        console.log('Data type:', typeof hostelsData);
+        console.log('Is array:', Array.isArray(hostelsData));
 
-        init() {
-            const dots = this.cardElement.querySelectorAll('.dot');
-            dots.forEach((dot, index) => {
-                dot.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.goToSlide(index);
-                });
-            });
-
-            // Auto-slide disabled
-            // this.startAutoSlide();
-            // this.cardElement.addEventListener('mouseenter', () => this.stopAutoSlide());
-            // this.cardElement.addEventListener('mouseleave', () => this.startAutoSlide());
-        }
-
-        updateImage() {
-            if (this.isTransitioning) return;
-            this.isTransitioning = true;
-
-            const img = this.cardElement.querySelector('.card-image');
-            const dots = this.cardElement.querySelectorAll('.dot');
-
-            img.style.opacity = '0';
-
-            setTimeout(() => {
-                img.src = this.images[this.currentIndex];
-                img.style.opacity = '1';
-                this.isTransitioning = false;
-            }, 200);
-
-            dots.forEach((dot, index) => {
-                if (index === this.currentIndex) {
-                    dot.classList.remove('bg-white/60', 'w-2');
-                    dot.classList.add('bg-white', 'w-8');
-                } else {
-                    dot.classList.remove('bg-white', 'w-8');
-                    dot.classList.add('bg-white/60', 'w-2');
-                }
-            });
-        }
-
-        goToSlide(index) {
-            this.currentIndex = index;
-            this.updateImage();
-            // Auto-slide disabled
-        }
-
-        nextSlide() {
-            this.currentIndex = (this.currentIndex + 1) % this.images.length;
-            this.updateImage();
-        }
-
-        startAutoSlide() {
-            // Auto-slide disabled for card images
-        }
-
-        stopAutoSlide() {
-            if (this.autoSlideInterval) {
-                clearInterval(this.autoSlideInterval);
+        class CardSlider {
+            constructor(cardElement, images, cardIndex) {
+                this.cardElement = cardElement;
+                this.images = images;
+                this.cardIndex = cardIndex;
+                this.currentIndex = 0;
                 this.autoSlideInterval = null;
+                this.isTransitioning = false;
+                this.init();
+            }
+
+            init() {
+                const dots = this.cardElement.querySelectorAll('.dot');
+                dots.forEach((dot, index) => {
+                    dot.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.goToSlide(index);
+                    });
+                });
+
+                // Auto-slide disabled
+                // this.startAutoSlide();
+                // this.cardElement.addEventListener('mouseenter', () => this.stopAutoSlide());
+                // this.cardElement.addEventListener('mouseleave', () => this.startAutoSlide());
+            }
+
+            updateImage() {
+                if (this.isTransitioning) return;
+                this.isTransitioning = true;
+
+                const img = this.cardElement.querySelector('.card-image');
+                const dots = this.cardElement.querySelectorAll('.dot');
+
+                img.style.opacity = '0';
+
+                setTimeout(() => {
+                    img.src = this.images[this.currentIndex];
+                    img.style.opacity = '1';
+                    this.isTransitioning = false;
+                }, 200);
+
+                dots.forEach((dot, index) => {
+                    if (index === this.currentIndex) {
+                        dot.classList.remove('bg-white/60', 'w-2');
+                        dot.classList.add('bg-white', 'w-8');
+                    } else {
+                        dot.classList.remove('bg-white', 'w-8');
+                        dot.classList.add('bg-white/60', 'w-2');
+                    }
+                });
+            }
+
+            goToSlide(index) {
+                this.currentIndex = index;
+                this.updateImage();
+                // Auto-slide disabled
+            }
+
+            nextSlide() {
+                this.currentIndex = (this.currentIndex + 1) % this.images.length;
+                this.updateImage();
+            }
+
+            startAutoSlide() {
+                // Auto-slide disabled for card images
+            }
+
+            stopAutoSlide() {
+                if (this.autoSlideInterval) {
+                    clearInterval(this.autoSlideInterval);
+                    this.autoSlideInterval = null;
+                }
+            }
+
+            destroy() {
+                this.stopAutoSlide();
             }
         }
 
-        destroy() {
-            this.stopAutoSlide();
-        }
-    }
-
-    function createCard(hostel, index) {
-        return `
+        function createCard(hostel, index) {
+            return `
                     <div class="flex-shrink-0 w-full sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] bg-white rounded-[20px] border border-color box-shadow overflow-hidden  hostel-card" data-card="${index}">
                         <div class="relative group">
                         <!-- black overlay -->
@@ -1070,204 +1070,204 @@
                         </div>
                     </div>
                 `;
-    }
-
-    let sliders = [];
-    let sliderContainer;
-    let prevBtn;
-    let nextBtn;
-    let currentSlide = 0;
-    let autoSlideInterval = null;
-
-    function initializeCards() {
-        console.log('Initializing cards with data:', hostelsData);
-        
-        // Check if hostelsData exists and has content
-        if (!hostelsData || hostelsData.length === 0) {
-            console.error('No hostels data available');
-            sliderContainer.innerHTML = '<div class="text-center py-8 text-gray-500">No hostels available</div>';
-            return;
         }
-        
-        // Clear existing content and sliders
-        sliderContainer.innerHTML = '';
-        sliders.forEach(slider => slider.destroy());
-        sliders = [];
 
-        // Create and append cards one by one
-        hostelsData.forEach((hostel, index) => {
-            console.log(`Creating card ${index}:`, hostel);
-            
-            const cardHtml = createCard(hostel, index);
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = cardHtml;
-            sliderContainer.appendChild(tempDiv.firstElementChild);
-        });
+        let sliders = [];
+        let sliderContainer;
+        let prevBtn;
+        let nextBtn;
+        let currentSlide = 0;
+        let autoSlideInterval = null;
 
+        function initializeCards() {
+            console.log('Initializing cards with data:', hostelsData);
 
-        // Initialize individual card sliders
-        document.querySelectorAll('.hostel-card').forEach((cardElement, index) => {
-            sliders.push(new CardSlider(cardElement, hostelsData[index].images, index));
-        });
-
-        // Force a reflow to ensure proper layout
-        sliderContainer.offsetHeight;
-    }
-
-    function getCardWidth() {
-        const card = document.querySelector('.hostel-card');
-        if (!card) return 0;
-        return card.offsetWidth + 24;
-    }
-
-    function getCardsPerView() {
-        const width = window.innerWidth;
-        if (width >= 1024) return 4;
-        if (width >= 640) return 2;
-        return 1;
-    }
-
-    function updateButtonStates() {
-        const cardsPerView = getCardsPerView();
-        const maxSlide = Math.max(0, hostelsData.length - cardsPerView);
-
-        prevBtn.disabled = currentSlide <= 0;
-        nextBtn.disabled = currentSlide >= maxSlide;
-
-        // Update button styles based on disabled state
-        [prevBtn, nextBtn].forEach(btn => {
-            if (btn.disabled) {
-                btn.classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            // Check if hostelsData exists and has content
+            if (!hostelsData || hostelsData.length === 0) {
+                console.error('No hostels data available');
+                sliderContainer.innerHTML = '<div class="text-center py-8 text-gray-500">No hostels available</div>';
+                return;
             }
-        });
-    }
 
-    function goToSlide(slideIndex) {
-        const cardsPerView = getCardsPerView();
-        const maxSlide = Math.max(0, hostelsData.length - cardsPerView);
-        currentSlide = Math.max(0, Math.min(slideIndex, maxSlide));
+            // Clear existing content and sliders
+            sliderContainer.innerHTML = '';
+            sliders.forEach(slider => slider.destroy());
+            sliders = [];
 
-        const cardWidth = getCardWidth();
-        sliderContainer.scrollTo({
-            left: currentSlide * cardWidth,
-            behavior: 'smooth'
-        });
+            // Create and append cards one by one
+            hostelsData.forEach((hostel, index) => {
+                console.log(`Creating card ${index}:`, hostel);
 
-        updateButtonStates();
-    }
+                const cardHtml = createCard(hostel, index);
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = cardHtml;
+                sliderContainer.appendChild(tempDiv.firstElementChild);
+            });
 
-    function nextSlide() {
-        if (nextBtn.disabled) {
-            // If we're at the end, loop to the beginning
-            currentSlide = 0;
-        } else {
-            currentSlide++;
+
+            // Initialize individual card sliders
+            document.querySelectorAll('.hostel-card').forEach((cardElement, index) => {
+                sliders.push(new CardSlider(cardElement, hostelsData[index].images, index));
+            });
+
+            // Force a reflow to ensure proper layout
+            sliderContainer.offsetHeight;
         }
-        goToSlide(currentSlide);
-    }
 
-    function prevSlide() {
-        if (prevBtn.disabled) {
-            // If we're at the beginning, loop to the end
+        function getCardWidth() {
+            const card = document.querySelector('.hostel-card');
+            if (!card) return 0;
+            return card.offsetWidth + 24;
+        }
+
+        function getCardsPerView() {
+            const width = window.innerWidth;
+            if (width >= 1024) return 4;
+            if (width >= 640) return 2;
+            return 1;
+        }
+
+        function updateButtonStates() {
             const cardsPerView = getCardsPerView();
-            currentSlide = Math.max(0, hostelsData.length - cardsPerView);
-        } else {
-            currentSlide--;
-        }
-        goToSlide(currentSlide);
-    }
+            const maxSlide = Math.max(0, hostelsData.length - cardsPerView);
 
-    // Add keyboard event listener for controls
-    document.addEventListener('keydown', (e) => {
-        if (e.ctrlKey) {
-            switch (e.key) {
-                case 'ArrowLeft':
-                    e.preventDefault();
-                    prevSlide();
-                    stopAutoSlide();
-                    startAutoSlide();
-                    break;
-                case 'ArrowRight':
-                    e.preventDefault();
-                    nextSlide();
-                    stopAutoSlide();
-                    startAutoSlide();
-                    break;
-            }
-        }
-    });
+            prevBtn.disabled = currentSlide <= 0;
+            nextBtn.disabled = currentSlide >= maxSlide;
 
-    function startAutoSlide() {
-        // Auto-scroll disabled for Top Rank Hostels
-    }
-
-    function stopAutoSlide() {
-        if (autoSlideInterval) {
-            clearInterval(autoSlideInterval);
-            autoSlideInterval = null;
-        }
-    }
-
-    function init() {
-        sliderContainer = document.getElementById('sliderContainer');
-        prevBtn = document.getElementById('prevBtn');
-        nextBtn = document.getElementById('nextBtn');
-
-        if (!sliderContainer || !prevBtn || !nextBtn) {
-            console.error('Required elements not found');
-            return;
+            // Update button styles based on disabled state
+            [prevBtn, nextBtn].forEach(btn => {
+                if (btn.disabled) {
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            });
         }
 
-        initializeCards();
+        function goToSlide(slideIndex) {
+            const cardsPerView = getCardsPerView();
+            const maxSlide = Math.max(0, hostelsData.length - cardsPerView);
+            currentSlide = Math.max(0, Math.min(slideIndex, maxSlide));
 
-        prevBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            prevSlide();
-            // stopAutoSlide(); // Disabled
-            // startAutoSlide(); // Disabled
-        });
-
-        nextBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            nextSlide();
-            // stopAutoSlide(); // Disabled
-            // startAutoSlide(); // Disabled
-        });
-
-        sliderContainer.addEventListener('scroll', () => {
             const cardWidth = getCardWidth();
-            if (cardWidth > 0) {
-                const newSlide = Math.round(sliderContainer.scrollLeft / cardWidth);
-                if (newSlide !== currentSlide) {
-                    currentSlide = newSlide;
-                    updateButtonStates();
+            sliderContainer.scrollTo({
+                left: currentSlide * cardWidth,
+                behavior: 'smooth'
+            });
+
+            updateButtonStates();
+        }
+
+        function nextSlide() {
+            if (nextBtn.disabled) {
+                // If we're at the end, loop to the beginning
+                currentSlide = 0;
+            } else {
+                currentSlide++;
+            }
+            goToSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            if (prevBtn.disabled) {
+                // If we're at the beginning, loop to the end
+                const cardsPerView = getCardsPerView();
+                currentSlide = Math.max(0, hostelsData.length - cardsPerView);
+            } else {
+                currentSlide--;
+            }
+            goToSlide(currentSlide);
+        }
+
+        // Add keyboard event listener for controls
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey) {
+                switch (e.key) {
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        prevSlide();
+                        stopAutoSlide();
+                        startAutoSlide();
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        nextSlide();
+                        stopAutoSlide();
+                        startAutoSlide();
+                        break;
                 }
             }
         });
 
-        sliderContainer.addEventListener('mouseenter', stopAutoSlide);
-        sliderContainer.addEventListener('mouseleave', () => {
-            // Do nothing - auto-scroll disabled
-        });
+        function startAutoSlide() {
+            // Auto-scroll disabled for Top Rank Hostels
+        }
 
-        window.addEventListener('resize', () => {
-            updateButtonStates();
-            goToSlide(currentSlide);
-        });
+        function stopAutoSlide() {
+            if (autoSlideInterval) {
+                clearInterval(autoSlideInterval);
+                autoSlideInterval = null;
+            }
+        }
 
-        setTimeout(() => {
-            updateButtonStates();
-            // startAutoSlide(); // Disabled auto-scroll
-        }, 100);
-    }
+        function init() {
+            sliderContainer = document.getElementById('sliderContainer');
+            prevBtn = document.getElementById('prevBtn');
+            nextBtn = document.getElementById('nextBtn');
 
-    // Initialize immediately
-    init();
-})();
+            if (!sliderContainer || !prevBtn || !nextBtn) {
+                console.error('Required elements not found');
+                return;
+            }
+
+            initializeCards();
+
+            prevBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                prevSlide();
+                // stopAutoSlide(); // Disabled
+                // startAutoSlide(); // Disabled
+            });
+
+            nextBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                nextSlide();
+                // stopAutoSlide(); // Disabled
+                // startAutoSlide(); // Disabled
+            });
+
+            sliderContainer.addEventListener('scroll', () => {
+                const cardWidth = getCardWidth();
+                if (cardWidth > 0) {
+                    const newSlide = Math.round(sliderContainer.scrollLeft / cardWidth);
+                    if (newSlide !== currentSlide) {
+                        currentSlide = newSlide;
+                        updateButtonStates();
+                    }
+                }
+            });
+
+            sliderContainer.addEventListener('mouseenter', stopAutoSlide);
+            sliderContainer.addEventListener('mouseleave', () => {
+                // Do nothing - auto-scroll disabled
+            });
+
+            window.addEventListener('resize', () => {
+                updateButtonStates();
+                goToSlide(currentSlide);
+            });
+
+            setTimeout(() => {
+                updateButtonStates();
+                // startAutoSlide(); // Disabled auto-scroll
+            }, 100);
+        }
+
+        // Initialize immediately
+        init();
+    })();
 </script>
 
 <!-- Recommendation hostels end -->
@@ -1477,14 +1477,14 @@
                     </form>
                     @if ($errors->any())
                     <script>
-                    document.addEventListener("DOMContentLoaded", function() {
-                        const formEl = document.getElementById('property-form');
-                        if (formEl) {
-                            formEl.scrollIntoView({
-                                behavior: 'smooth'
-                            });
-                        }
-                    });
+                        document.addEventListener("DOMContentLoaded", function() {
+                            const formEl = document.getElementById('property-form');
+                            if (formEl) {
+                                formEl.scrollIntoView({
+                                    behavior: 'smooth'
+                                });
+                            }
+                        });
                     </script>
                     @endif
                 </div>
@@ -1608,10 +1608,10 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Function to build testimonial HTML
-    function buildTestimonialHTML(testimonials) {
-        return testimonials.map(testimonial => `
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to build testimonial HTML
+        function buildTestimonialHTML(testimonials) {
+            return testimonials.map(testimonial => `
                     <div class="bg-white rounded-lg border border-[#E1DFDF] p-6">
                         <div class="flex items-start justify-between mb-3">
                             <div class="flex items-center gap-3">
@@ -1639,394 +1639,394 @@ document.addEventListener('DOMContentLoaded', function() {
                         </p>
                     </div>
                 `).join('');
-    }
-
-    // Function to build pagination HTML
-    function buildPaginationHTML(pagination) {
-        if (pagination.last_page <= 1) {
-            return '';
         }
 
-        let html = '<div class="flex justify-center items-center gap-2 mt-8">';
+        // Function to build pagination HTML
+        function buildPaginationHTML(pagination) {
+            if (pagination.last_page <= 1) {
+                return '';
+            }
 
-        // Previous button
-        if (pagination.on_first_page) {
-            html += `<span class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-300 cursor-not-allowed">
+            let html = '<div class="flex justify-center items-center gap-2 mt-8">';
+
+            // Previous button
+            if (pagination.on_first_page) {
+                html += `<span class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-300 cursor-not-allowed">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
                     </span>`;
-        } else {
-            html += `<a href="#" data-page="${pagination.current_page - 1}" class="pagination-link w-8 h-8 flex items-center justify-center rounded-full border border-color shadow-custom-combo sub-text hover:bg-[#7790c2] text-black hover:text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </a>`;
-        }
-
-        // Page numbers
-        for (let i = 1; i <= pagination.last_page; i++) {
-            if (i === pagination.current_page) {
-                html +=
-                    `<span class="w-8 h-8 flex items-center justify-center rounded-full bg-[#4490D9] text-white font-medium text-sm">${i}</span>`;
             } else {
-                html +=
-                    `<a href="#" data-page="${i}" class="pagination-link w-8 h-8 flex items-center justify-center rounded-full sub-text hover:bg-[#e3e8f3] font-medium text-sm">${i}</a>`;
+                html += `<a href="#" data-page="${pagination.current_page - 1}" class="pagination-link w-8 h-8 flex items-center justify-center rounded-full border border-color shadow-custom-combo sub-text hover:bg-[#7790c2] text-black hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </a>`;
             }
-        }
 
-        // Next button
-        if (pagination.has_more_pages) {
-            html += `<a href="#" data-page="${pagination.current_page + 1}" class="pagination-link w-8 h-8 flex items-center justify-center rounded-full border border-color shadow-custom-combo sub-text hover:bg-[#7790c2] text-black hover:text-white">
+            // Page numbers
+            for (let i = 1; i <= pagination.last_page; i++) {
+                if (i === pagination.current_page) {
+                    html +=
+                        `<span class="w-8 h-8 flex items-center justify-center rounded-full bg-[#4490D9] text-white font-medium text-sm">${i}</span>`;
+                } else {
+                    html +=
+                        `<a href="#" data-page="${i}" class="pagination-link w-8 h-8 flex items-center justify-center rounded-full sub-text hover:bg-[#e3e8f3] font-medium text-sm">${i}</a>`;
+                }
+            }
+
+            // Next button
+            if (pagination.has_more_pages) {
+                html += `<a href="#" data-page="${pagination.current_page + 1}" class="pagination-link w-8 h-8 flex items-center justify-center rounded-full border border-color shadow-custom-combo sub-text hover:bg-[#7790c2] text-black hover:text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
                     </a>`;
-        } else {
-            html += `<span class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-300 cursor-not-allowed">
+            } else {
+                html += `<span class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-300 cursor-not-allowed">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
                     </span>`;
-        }
-
-        html += '</div>';
-        return html;
-    }
-
-    // Handle pagination click
-    document.addEventListener('click', function(e) {
-        if (e.target.closest('.pagination-link')) {
-            e.preventDefault();
-
-            const link = e.target.closest('.pagination-link');
-            const page = link.getAttribute('data-page');
-
-            // Get the position of the reviews section
-            const reviewsSection = document.getElementById('reviews-section');
-            const sectionTop = reviewsSection.offsetTop;
-
-            // Fetch testimonials for the clicked page
-            fetch(`{{ route('testimonials.paginate') }}?page=${page}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Update content with built HTML
-                    document.getElementById('testimonials-grid').innerHTML =
-                        buildTestimonialHTML(data.testimonials);
-                    document.getElementById('testimonials-pagination').innerHTML =
-                        buildPaginationHTML(data.pagination);
-
-                    // Scroll to reviews section smoothly
-                    window.scrollTo({
-                        top: sectionTop - 100, // 100px offset from top
-                        behavior: 'smooth'
-                    });
-                })
-                .catch(error => {
-                    console.error('Error loading testimonials:', error);
-                });
-        }
-    });
-});
-
-// Filter functionality with vanilla JavaScript
-// Filter state
-const filterState = {
-    roomType: '',
-    roomTypeLabel: 'Select Room Type',
-    gender: '',
-    genderLabel: 'Select Gender',
-    minPrice: '',
-    maxPrice: '',
-    priceLabel: 'Select Price Range',
-    rating: '',
-    ratingLabel: 'Select Rating',
-    amenities: []
-};
-
-// Reset all filters
-function resetFilters() {
-    // Reset filter state
-    filterState.roomType = '';
-    filterState.roomTypeLabel = 'Select Room Type';
-    filterState.gender = '';
-    filterState.genderLabel = 'Select Gender';
-    filterState.minPrice = '';
-    filterState.maxPrice = '';
-    filterState.priceLabel = 'Select Price Range';
-    filterState.rating = '';
-    filterState.ratingLabel = 'Select Rating';
-    filterState.amenities = [];
-
-    // Update UI labels
-    document.getElementById('roomTypeLabel').textContent = 'Select Room Type';
-    document.getElementById('genderLabel').textContent = 'Select Gender';
-    document.getElementById('priceLabel').textContent = 'Select Price Range';
-    document.getElementById('ratingLabel').textContent = 'Select Rating';
-
-    // Uncheck all amenity checkboxes
-    const checkboxes = document.querySelectorAll('.amenity-checkbox');
-    checkboxes.forEach(cb => cb.checked = false);
-    updateAmenityCount();
-
-    // Hide filtered results section
-    const filteredResults = document.getElementById('filtered-results');
-    if (filteredResults) {
-        filteredResults.classList.add('hidden');
-    }
-}
-
-// Toggle dropdown visibility
-function toggleDropdown(type) {
-    const dropdown = document.getElementById(type + 'Dropdown');
-    if (dropdown) {
-        dropdown.classList.toggle('hidden');
-    }
-    // Close other dropdowns
-    ['roomType', 'gender', 'price', 'rating'].forEach(dt => {
-        if (dt !== type) {
-            const otherDropdown = document.getElementById(dt + 'Dropdown');
-            if (otherDropdown && !otherDropdown.classList.contains('hidden')) {
-                otherDropdown.classList.add('hidden');
             }
+
+            html += '</div>';
+            return html;
         }
+
+        // Handle pagination click
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.pagination-link')) {
+                e.preventDefault();
+
+                const link = e.target.closest('.pagination-link');
+                const page = link.getAttribute('data-page');
+
+                // Get the position of the reviews section
+                const reviewsSection = document.getElementById('reviews-section');
+                const sectionTop = reviewsSection.offsetTop;
+
+                // Fetch testimonials for the clicked page
+                fetch(`{{ route('testimonials.paginate') }}?page=${page}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update content with built HTML
+                        document.getElementById('testimonials-grid').innerHTML =
+                            buildTestimonialHTML(data.testimonials);
+                        document.getElementById('testimonials-pagination').innerHTML =
+                            buildPaginationHTML(data.pagination);
+
+                        // Scroll to reviews section smoothly
+                        window.scrollTo({
+                            top: sectionTop - 100, // 100px offset from top
+                            behavior: 'smooth'
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error loading testimonials:', error);
+                    });
+            }
+        });
     });
-}
 
-// Room Type selection
-function selectRoomType(type) {
-    if (type === 'All') {
+    // Filter functionality with vanilla JavaScript
+    // Filter state
+    const filterState = {
+        roomType: '',
+        roomTypeLabel: 'Select Room Type',
+        gender: '',
+        genderLabel: 'Select Gender',
+        minPrice: '',
+        maxPrice: '',
+        priceLabel: 'Select Price Range',
+        rating: '',
+        ratingLabel: 'Select Rating',
+        amenities: []
+    };
+
+    // Reset all filters
+    function resetFilters() {
+        // Reset filter state
         filterState.roomType = '';
-        filterState.roomTypeLabel = 'All';
-    } else {
-        filterState.roomType = type;
-        filterState.roomTypeLabel = type;
-    }
-    document.getElementById('roomTypeLabel').textContent = filterState.roomTypeLabel;
-    document.getElementById('roomTypeDropdown').classList.add('hidden');
-    // Auto-search when room type is selected
-    searchHostels();
-}
-
-// Gender selection
-function selectGender(value, label) {
-    filterState.gender = value;
-    filterState.genderLabel = label;
-    document.getElementById('genderLabel').textContent = label;
-    document.getElementById('genderDropdown').classList.add('hidden');
-    // Auto-search when gender is selected
-    searchHostels();
-}
-
-// Price Range selection
-function selectPriceRange(min, max, label) {
-    if (min === 'All' || max === 'All') {
+        filterState.roomTypeLabel = 'Select Room Type';
+        filterState.gender = '';
+        filterState.genderLabel = 'Select Gender';
         filterState.minPrice = '';
         filterState.maxPrice = '';
-        filterState.priceLabel = 'All';
-    } else {
-        filterState.minPrice = min;
-        filterState.maxPrice = max;
-        filterState.priceLabel = label;
-    }
-    document.getElementById('priceLabel').textContent = filterState.priceLabel;
-    document.getElementById('priceDropdown').classList.add('hidden');
-    // Auto-search when price range is selected
-    searchHostels();
-}
-
-// Rating selection
-function selectRating(value, label) {
-    if (value === 'All') {
+        filterState.priceLabel = 'Select Price Range';
         filterState.rating = '';
-        filterState.ratingLabel = 'All';
-    } else {
-        filterState.rating = value;
-        filterState.ratingLabel = label;
-    }
-    document.getElementById('ratingLabel').textContent = filterState.ratingLabel;
-    document.getElementById('ratingDropdown').classList.add('hidden');
-    // Auto-search when rating is selected
-    searchHostels();
-}
+        filterState.ratingLabel = 'Select Rating';
+        filterState.amenities = [];
 
-// Amenities Modal functions
-function openAmenitiesModal() {
-    document.getElementById('amenitiesModal').classList.remove('hidden');
-    // Close any open dropdowns
-    ['roomType', 'gender', 'price', 'rating'].forEach(type => {
+        // Update UI labels
+        document.getElementById('roomTypeLabel').textContent = 'Select Room Type';
+        document.getElementById('genderLabel').textContent = 'Select Gender';
+        document.getElementById('priceLabel').textContent = 'Select Price Range';
+        document.getElementById('ratingLabel').textContent = 'Select Rating';
+
+        // Uncheck all amenity checkboxes
+        const checkboxes = document.querySelectorAll('.amenity-checkbox');
+        checkboxes.forEach(cb => cb.checked = false);
+        updateAmenityCount();
+
+        // Hide filtered results section
+        const filteredResults = document.getElementById('filtered-results');
+        if (filteredResults) {
+            filteredResults.classList.add('hidden');
+        }
+    }
+
+    // Toggle dropdown visibility
+    function toggleDropdown(type) {
         const dropdown = document.getElementById(type + 'Dropdown');
-        if (dropdown && !dropdown.classList.contains('hidden')) {
-            dropdown.classList.add('hidden');
+        if (dropdown) {
+            dropdown.classList.toggle('hidden');
         }
-    });
-}
+        // Close other dropdowns
+        ['roomType', 'gender', 'price', 'rating'].forEach(dt => {
+            if (dt !== type) {
+                const otherDropdown = document.getElementById(dt + 'Dropdown');
+                if (otherDropdown && !otherDropdown.classList.contains('hidden')) {
+                    otherDropdown.classList.add('hidden');
+                }
+            }
+        });
+    }
 
-function closeAmenitiesModal() {
-    document.getElementById('amenitiesModal').classList.add('hidden');
-}
-
-function searchAmenities() {
-    const searchTerm = document.getElementById('amenitySearch').value.toLowerCase();
-    const amenityItems = document.querySelectorAll('.amenity-item');
-
-    amenityItems.forEach(item => {
-        const amenityName = item.getAttribute('data-name');
-        if (amenityName.includes(searchTerm)) {
-            item.style.display = '';
+    // Room Type selection
+    function selectRoomType(type) {
+        if (type === 'All') {
+            filterState.roomType = '';
+            filterState.roomTypeLabel = 'All';
         } else {
-            item.style.display = 'none';
+            filterState.roomType = type;
+            filterState.roomTypeLabel = type;
         }
-    });
-}
-
-function updateAmenityCount() {
-    const checkedBoxes = document.querySelectorAll('.amenity-checkbox:checked');
-    const count = checkedBoxes.length;
-    const countBadge = document.getElementById('amenitiesCount');
-
-    if (count > 0) {
-        countBadge.textContent = count;
-        countBadge.style.display = 'inline-flex';
-    } else {
-        countBadge.style.display = 'none';
-    }
-}
-
-function resetAmenities() {
-    const checkboxes = document.querySelectorAll('.amenity-checkbox');
-    checkboxes.forEach(cb => cb.checked = false);
-    updateAmenityCount();
-}
-
-function applyAmenities() {
-    const checkedBoxes = document.querySelectorAll('.amenity-checkbox:checked');
-    filterState.amenities = Array.from(checkedBoxes).map(cb => cb.value);
-    closeAmenitiesModal();
-    // Auto-search when amenities are applied
-    searchHostels();
-}
-
-// Main search function
-async function searchHostels() {
-    // Show loading state
-    const searchBtn = document.getElementById('searchBtn');
-    const searchBtnMobile = document.getElementById('searchBtnMobile');
-    const searchIcon = document.getElementById('searchIcon');
-    const loadingIcon = document.getElementById('loadingIcon');
-    const searchBtnText = document.getElementById('searchBtnText');
-    const loadingIconMobile = document.getElementById('loadingIconMobile');
-    const searchBtnTextMobile = document.getElementById('searchBtnTextMobile');
-
-    // Disable buttons and show loading (only if they exist)
-    if (searchBtn) {
-        searchBtn.disabled = true;
-        if (searchIcon) searchIcon.classList.add('hidden');
-        if (loadingIcon) loadingIcon.classList.remove('hidden');
-        // if (searchBtnText) searchBtnText.textContent = 'Searching...';
-    }
-    if (searchBtnMobile) {
-        searchBtnMobile.disabled = true;
-        if (loadingIconMobile) loadingIconMobile.classList.remove('hidden');
-        // if (searchBtnTextMobile) searchBtnTextMobile.textContent = 'Searching...';
+        document.getElementById('roomTypeLabel').textContent = filterState.roomTypeLabel;
+        document.getElementById('roomTypeDropdown').classList.add('hidden');
+        // Auto-search when room type is selected
+        searchHostels();
     }
 
-    // Build form data
-    const formData = new FormData();
-    if (filterState.roomType && filterState.roomType !== 'All') formData.append('roomType', filterState.roomType);
-    if (filterState.gender) formData.append('gender', filterState.gender);
-    if (filterState.minPrice) formData.append('minPrice', filterState.minPrice);
-    if (filterState.maxPrice) formData.append('maxPrice', filterState.maxPrice);
-    if (filterState.rating) formData.append('rating', filterState.rating);
-    if (filterState.amenities.length > 0) {
-        filterState.amenities.forEach(amenity => {
-            formData.append('amenities[]', amenity);
+    // Gender selection
+    function selectGender(value, label) {
+        filterState.gender = value;
+        filterState.genderLabel = label;
+        document.getElementById('genderLabel').textContent = label;
+        document.getElementById('genderDropdown').classList.add('hidden');
+        // Auto-search when gender is selected
+        searchHostels();
+    }
+
+    // Price Range selection
+    function selectPriceRange(min, max, label) {
+        if (min === 'All' || max === 'All') {
+            filterState.minPrice = '';
+            filterState.maxPrice = '';
+            filterState.priceLabel = 'All';
+        } else {
+            filterState.minPrice = min;
+            filterState.maxPrice = max;
+            filterState.priceLabel = label;
+        }
+        document.getElementById('priceLabel').textContent = filterState.priceLabel;
+        document.getElementById('priceDropdown').classList.add('hidden');
+        // Auto-search when price range is selected
+        searchHostels();
+    }
+
+    // Rating selection
+    function selectRating(value, label) {
+        if (value === 'All') {
+            filterState.rating = '';
+            filterState.ratingLabel = 'All';
+        } else {
+            filterState.rating = value;
+            filterState.ratingLabel = label;
+        }
+        document.getElementById('ratingLabel').textContent = filterState.ratingLabel;
+        document.getElementById('ratingDropdown').classList.add('hidden');
+        // Auto-search when rating is selected
+        searchHostels();
+    }
+
+    // Amenities Modal functions
+    function openAmenitiesModal() {
+        document.getElementById('amenitiesModal').classList.remove('hidden');
+        // Close any open dropdowns
+        ['roomType', 'gender', 'price', 'rating'].forEach(type => {
+            const dropdown = document.getElementById(type + 'Dropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
         });
     }
 
-    console.log('Filter state:', filterState);
+    function closeAmenitiesModal() {
+        document.getElementById('amenitiesModal').classList.add('hidden');
+    }
 
-    try {
-        const response = await fetch("   {{ route('home.filterHostels') }}", {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                    'content')
-            },
-            body: formData
+    function searchAmenities() {
+        const searchTerm = document.getElementById('amenitySearch').value.toLowerCase();
+        const amenityItems = document.querySelectorAll('.amenity-item');
+
+        amenityItems.forEach(item => {
+            const amenityName = item.getAttribute('data-name');
+            if (amenityName.includes(searchTerm)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
         });
+    }
 
-        const data = await response.json();
-        console.log('Filter response:', data);
+    function updateAmenityCount() {
+        const checkedBoxes = document.querySelectorAll('.amenity-checkbox:checked');
+        const count = checkedBoxes.length;
+        const countBadge = document.getElementById('amenitiesCount');
 
-        // Display results
-        displayResults(data.hostels, data.count);
+        if (count > 0) {
+            countBadge.textContent = count;
+            countBadge.style.display = 'inline-flex';
+        } else {
+            countBadge.style.display = 'none';
+        }
+    }
 
-        // Scroll to results
-        document.getElementById('filtered-results').scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
+    function resetAmenities() {
+        const checkboxes = document.querySelectorAll('.amenity-checkbox');
+        checkboxes.forEach(cb => cb.checked = false);
+        updateAmenityCount();
+    }
 
-    } catch (error) {
-        console.error('Error filtering hostels:', error);
-        alert('An error occurred while filtering hostels. Please try again.');
-    } finally {
-        // Reset button state (only if they exist)
+    function applyAmenities() {
+        const checkedBoxes = document.querySelectorAll('.amenity-checkbox:checked');
+        filterState.amenities = Array.from(checkedBoxes).map(cb => cb.value);
+        closeAmenitiesModal();
+        // Auto-search when amenities are applied
+        searchHostels();
+    }
+
+    // Main search function
+    async function searchHostels() {
+        // Show loading state
+        const searchBtn = document.getElementById('searchBtn');
+        const searchBtnMobile = document.getElementById('searchBtnMobile');
+        const searchIcon = document.getElementById('searchIcon');
+        const loadingIcon = document.getElementById('loadingIcon');
+        const searchBtnText = document.getElementById('searchBtnText');
+        const loadingIconMobile = document.getElementById('loadingIconMobile');
+        const searchBtnTextMobile = document.getElementById('searchBtnTextMobile');
+
+        // Disable buttons and show loading (only if they exist)
         if (searchBtn) {
-            searchBtn.disabled = false;
-            if (searchIcon) searchIcon.classList.remove('hidden');
-            if (loadingIcon) loadingIcon.classList.add('hidden');
-            if (searchBtnText) searchBtnText.textContent = 'Clear Filters';
+            searchBtn.disabled = true;
+            if (searchIcon) searchIcon.classList.add('hidden');
+            if (loadingIcon) loadingIcon.classList.remove('hidden');
+            // if (searchBtnText) searchBtnText.textContent = 'Searching...';
         }
         if (searchBtnMobile) {
-            searchBtnMobile.disabled = false;
-            if (loadingIconMobile) loadingIconMobile.classList.add('hidden');
-            if (searchBtnTextMobile) searchBtnTextMobile.textContent = 'Clear Filters';
+            searchBtnMobile.disabled = true;
+            if (loadingIconMobile) loadingIconMobile.classList.remove('hidden');
+            // if (searchBtnTextMobile) searchBtnTextMobile.textContent = 'Searching...';
+        }
+
+        // Build form data
+        const formData = new FormData();
+        if (filterState.roomType && filterState.roomType !== 'All') formData.append('roomType', filterState.roomType);
+        if (filterState.gender) formData.append('gender', filterState.gender);
+        if (filterState.minPrice) formData.append('minPrice', filterState.minPrice);
+        if (filterState.maxPrice) formData.append('maxPrice', filterState.maxPrice);
+        if (filterState.rating) formData.append('rating', filterState.rating);
+        if (filterState.amenities.length > 0) {
+            filterState.amenities.forEach(amenity => {
+                formData.append('amenities[]', amenity);
+            });
+        }
+
+        console.log('Filter state:', filterState);
+
+        try {
+            const response = await fetch("   {{ route('home.filterHostels') }}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                        'content')
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+            console.log('Filter response:', data);
+
+            // Display results
+            displayResults(data.hostels, data.count);
+
+            // Scroll to results
+            document.getElementById('filtered-results').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+
+        } catch (error) {
+            console.error('Error filtering hostels:', error);
+            alert('An error occurred while filtering hostels. Please try again.');
+        } finally {
+            // Reset button state (only if they exist)
+            if (searchBtn) {
+                searchBtn.disabled = false;
+                if (searchIcon) searchIcon.classList.remove('hidden');
+                if (loadingIcon) loadingIcon.classList.add('hidden');
+                if (searchBtnText) searchBtnText.textContent = 'Clear Filters';
+            }
+            if (searchBtnMobile) {
+                searchBtnMobile.disabled = false;
+                if (loadingIconMobile) loadingIconMobile.classList.add('hidden');
+                if (searchBtnTextMobile) searchBtnTextMobile.textContent = 'Clear Filters';
+            }
         }
     }
-}
 
-// Display filtered results
-function displayResults(hostels, count) {
-    const resultsSection = document.getElementById('filtered-results');
-    const resultsHeader = document.getElementById('resultsHeader');
+    // Display filtered results
+    function displayResults(hostels, count) {
+        const resultsSection = document.getElementById('filtered-results');
+        const resultsHeader = document.getElementById('resultsHeader');
 
-    // Update header
-    resultsHeader.textContent = count > 0 ? `Found ${count} Hostels` : 'No Hostels Found';
+        // Update header
+        resultsHeader.textContent = count > 0 ? `Found ${count} Hostels` : 'No Hostels Found';
 
-    // Show results section
-    resultsSection.classList.remove('hidden');
+        // Show results section
+        resultsSection.classList.remove('hidden');
 
-    // Get carousel container
-    const carouselContainer = document.getElementById('filteredCarousel');
+        // Get carousel container
+        const carouselContainer = document.getElementById('filteredCarousel');
 
-    // Store hostels data globally for carousel navigation
-    window.filteredHostelsData = hostels;
+        // Store hostels data globally for carousel navigation
+        window.filteredHostelsData = hostels;
 
-    if (count === 0) {
-        carouselContainer.parentElement.classList.add('hidden');
-        return;
-    }
+        if (count === 0) {
+            carouselContainer.parentElement.classList.add('hidden');
+            return;
+        }
 
-    carouselContainer.parentElement.classList.remove('hidden');
+        carouselContainer.parentElement.classList.remove('hidden');
 
-    // Generate hostel cards HTML
-    let hostelCardsHTML = '';
-    hostels.forEach(hostel => {
-        const minPrice = hostel.blocks && hostel.blocks.length > 0 ?
-            Math.min(...hostel.blocks.flatMap(b => b.occupancies || []).map(o => o.monthly_rent || 0)) :
-            0;
+        // Generate hostel cards HTML
+        let hostelCardsHTML = '';
+        hostels.forEach(hostel => {
+            const minPrice = hostel.blocks && hostel.blocks.length > 0 ?
+                Math.min(...hostel.blocks.flatMap(b => b.occupancies || []).map(o => o.monthly_rent || 0)) :
+                0;
 
-        const firstImage = hostel.images && hostel.images.length > 0 ?
-            hostel.images[0].image :
-            'default.jpg';
+            const firstImage = hostel.images && hostel.images.length > 0 ?
+                hostel.images[0].image :
+                'default.jpg';
 
-        hostelCardsHTML += `
+            hostelCardsHTML += `
                     <div class="flex-none w-full md:w-[calc(50%-8px)] xl:w-[calc(33.333%-11px)] 2xl:w-[calc(25%-12px)]">
                         <div class="bg-white rounded-[20px] border border-color box-shadow overflow-hidden flex flex-col h-full min-h-full">
                             <!-- Image -->
@@ -2091,91 +2091,91 @@ function displayResults(hostels, count) {
                         </div>
                     </div>
                 `;
-    });
+        });
 
-    carouselContainer.innerHTML = hostelCardsHTML;
+        carouselContainer.innerHTML = hostelCardsHTML;
 
-    // Initialize filtered carousel
-    window.filteredCarouselIndex = 0;
+        // Initialize filtered carousel
+        window.filteredCarouselIndex = 0;
 
-    // Show/hide carousel buttons based on hostel count and viewport
-    const carouselButtons = document.getElementById('filteredCarouselButtons');
-    if (carouselButtons) {
-        const cardsPerView = getCardsPerView();
-        // Only show buttons if there are more hostels than can fit on screen
-        if (count > cardsPerView) {
-            carouselButtons.classList.remove('hidden');
-        } else {
-            carouselButtons.classList.add('hidden');
+        // Show/hide carousel buttons based on hostel count and viewport
+        const carouselButtons = document.getElementById('filteredCarouselButtons');
+        if (carouselButtons) {
+            const cardsPerView = getCardsPerView();
+            // Only show buttons if there are more hostels than can fit on screen
+            if (count > cardsPerView) {
+                carouselButtons.classList.remove('hidden');
+            } else {
+                carouselButtons.classList.add('hidden');
+            }
         }
     }
-}
 
-// Filtered results carousel navigation
-window.nextFilteredCard = function() {
-    const carousel = document.getElementById('filteredCarousel');
-    if (!carousel || !window.filteredHostelsData) return;
+    // Filtered results carousel navigation
+    window.nextFilteredCard = function() {
+        const carousel = document.getElementById('filteredCarousel');
+        if (!carousel || !window.filteredHostelsData) return;
 
-    const cardWidth = carousel.children[0] ? carousel.children[0].offsetWidth + 16 : 0;
-    const cardsPerView = getCardsPerView();
-    const maxIndex = Math.max(0, window.filteredHostelsData.length - cardsPerView);
+        const cardWidth = carousel.children[0] ? carousel.children[0].offsetWidth + 16 : 0;
+        const cardsPerView = getCardsPerView();
+        const maxIndex = Math.max(0, window.filteredHostelsData.length - cardsPerView);
 
-    if (window.filteredCarouselIndex < maxIndex) {
-        window.filteredCarouselIndex++;
-    } else {
-        window.filteredCarouselIndex = 0;
-    }
+        if (window.filteredCarouselIndex < maxIndex) {
+            window.filteredCarouselIndex++;
+        } else {
+            window.filteredCarouselIndex = 0;
+        }
 
-    carousel.scrollTo({
-        left: window.filteredCarouselIndex * cardWidth,
-        behavior: 'smooth'
-    });
-};
-
-window.prevFilteredCard = function() {
-    const carousel = document.getElementById('filteredCarousel');
-    if (!carousel || !window.filteredHostelsData) return;
-
-    const cardWidth = carousel.children[0] ? carousel.children[0].offsetWidth + 16 : 0;
-    const cardsPerView = getCardsPerView();
-    const maxIndex = Math.max(0, window.filteredHostelsData.length - cardsPerView);
-
-    if (window.filteredCarouselIndex > 0) {
-        window.filteredCarouselIndex--;
-    } else {
-        window.filteredCarouselIndex = maxIndex;
-    }
-
-    carousel.scrollTo({
-        left: window.filteredCarouselIndex * cardWidth,
-        behavior: 'smooth'
-    });
-};
-
-function getCardsPerView() {
-    const width = window.innerWidth;
-    if (width >= 1600) return 4; // 2xl breakpoint
-    if (width >= 1280) return 3; // xl breakpoint
-    if (width >= 768) return 2; // md breakpoint
-    return 1;
-}
-
-// Close dropdowns when clicking outside
-document.addEventListener('click', function(event) {
-    const filterSection = document.getElementById('filter-section');
-    const amenitiesModal = document.getElementById('amenitiesModal');
-
-    // Don't close if clicking inside filter section or modal
-    if (filterSection && !filterSection.contains(event.target) &&
-        amenitiesModal && !amenitiesModal.contains(event.target)) {
-        // Close all dropdowns
-        ['roomType', 'gender', 'price', 'rating'].forEach(type => {
-            const dropdown = document.getElementById(type + 'Dropdown');
-            if (dropdown && !dropdown.classList.contains('hidden')) {
-                dropdown.classList.add('hidden');
-            }
+        carousel.scrollTo({
+            left: window.filteredCarouselIndex * cardWidth,
+            behavior: 'smooth'
         });
+    };
+
+    window.prevFilteredCard = function() {
+        const carousel = document.getElementById('filteredCarousel');
+        if (!carousel || !window.filteredHostelsData) return;
+
+        const cardWidth = carousel.children[0] ? carousel.children[0].offsetWidth + 16 : 0;
+        const cardsPerView = getCardsPerView();
+        const maxIndex = Math.max(0, window.filteredHostelsData.length - cardsPerView);
+
+        if (window.filteredCarouselIndex > 0) {
+            window.filteredCarouselIndex--;
+        } else {
+            window.filteredCarouselIndex = maxIndex;
+        }
+
+        carousel.scrollTo({
+            left: window.filteredCarouselIndex * cardWidth,
+            behavior: 'smooth'
+        });
+    };
+
+    function getCardsPerView() {
+        const width = window.innerWidth;
+        if (width >= 1600) return 4; // 2xl breakpoint
+        if (width >= 1280) return 3; // xl breakpoint
+        if (width >= 768) return 2; // md breakpoint
+        return 1;
     }
-});
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+        const filterSection = document.getElementById('filter-section');
+        const amenitiesModal = document.getElementById('amenitiesModal');
+
+        // Don't close if clicking inside filter section or modal
+        if (filterSection && !filterSection.contains(event.target) &&
+            amenitiesModal && !amenitiesModal.contains(event.target)) {
+            // Close all dropdowns
+            ['roomType', 'gender', 'price', 'rating'].forEach(type => {
+                const dropdown = document.getElementById(type + 'Dropdown');
+                if (dropdown && !dropdown.classList.contains('hidden')) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        }
+    });
 </script>
 @endpush
