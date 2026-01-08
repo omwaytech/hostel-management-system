@@ -1,0 +1,35 @@
+input.form-control {
+    background-color: rgb(244, 244, 244);
+    color: #000;
+}
+
+input.form-control:focus {
+    background-color: white;
+    border-color: #3F51B5;
+    outline: 0;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+}
+
+select.form-control {
+    background-color: rgb(244, 244, 244);
+    color: #000;
+}
+
+select.form-control:focus {
+    background-color: white;
+    border-color: #3F51B5;
+    outline: 0;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+}
+
+textarea.form-control {
+    background-color: rgb(244, 244, 244);
+    color: #000;
+}
+
+textarea.form-control:focus {
+    background-color: white;
+    border-color: #3F51B5;
+    outline: 0;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+}

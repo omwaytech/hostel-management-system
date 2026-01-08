@@ -1,0 +1,19 @@
+.swal-btn-sm {
+    font-size: 0.75rem !important;
+    padding: 4px 10px !important;
+    line-height: 1.2 !important;
+    border-radius: 4px;
+}
+
+.swal-confirm-btn {
+    background-color: #30d641;
+    color: #1d9b36;
+    border: none;
+}
+
+.swal-cancel-btn {
+    background-color: #d33;
+    color: #b90404;
+    border: none;
+    margin-left: 8px;
+}
