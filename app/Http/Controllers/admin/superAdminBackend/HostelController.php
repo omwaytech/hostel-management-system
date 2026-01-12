@@ -29,12 +29,14 @@ class HostelController extends Controller
     {
         $hostelAdmins = User::where('role_id', 2)->get();
         $amenities = Amenity::where('is_deleted', 0)->get();
-        return view('admin.superAdminBackend.hostel.create',
-        [
-            'hostel' => null,
-            'hostelAdmins' => $hostelAdmins,
-            'amenities' => $amenities
-        ]);
+        return view(
+            'admin.superAdminBackend.hostel.create',
+            [
+                'hostel' => null,
+                'hostelAdmins' => $hostelAdmins,
+                'amenities' => $amenities
+            ]
+        );
     }
 
     public function store(HostelRequest $request)
@@ -71,7 +73,7 @@ class HostelController extends Controller
                     'hostel_id' => $hostel->id,
                     'image' => $fileName,
                     'caption' => $request->images_data[$index]['caption'],
-                    'slug' => Str::slug($hostel->id .'-'. $request->images_data[$index]['caption'])
+                    'slug' => Str::slug($hostel->id . '-' . $request->images_data[$index]['caption'])
                 ]);
             }
 
@@ -84,7 +86,7 @@ class HostelController extends Controller
                 'name' => $request->name,
                 'description' => $request->description,
                 'contact' => $request->contact,
-                'location'=> $request->location,
+                'location' => $request->location,
                 'email' => $request->email,
                 'slug' => Str::slug($request->name),
             ]);
@@ -116,7 +118,6 @@ class HostelController extends Controller
 
     public function update(HostelRequest $request, $slug)
     {
-        // dd($request->all());
         try {
             $hostel = Hostel::whereSlug($slug)->first();
             $oldLogo = $hostel->logo;
@@ -165,64 +166,90 @@ class HostelController extends Controller
             });
 
             //--- update existing values ---
-            foreach ($request->images_data as $index => $data) {
-                if (isset($data['existing'])) {
-                    // Update existing image
-                    $hostelImage = HostelImage::find($data['existing']);
-                    if (!$hostelImage) continue;
+            if ($request->has('images_data') && is_array($request->images_data)) {
+                foreach ($request->images_data as $index => $data) {
+                    if (isset($data['existing']) && !empty($data['existing'])) {
+                        // Update existing image
+                        $hostelImage = HostelImage::find($data['existing']);
+                        if (!$hostelImage) continue;
 
-                    // Replace image if a new one is uploaded
-                    if ($request->hasFile("images_data.$index.new_image")) {
-                        $newImage = $request->file("images_data.$index.new_image");
-                        $fileName = time() . '-' . $newImage->getClientOriginalName();
-                        $newImage->move(public_path('storage/images/hostelImages'), $fileName);
+                        // Replace image if a new one is uploaded
+                        if ($request->hasFile("images_data.{$index}.new_image")) {
+                            $newImage = $request->file("images_data.{$index}.new_image");
+                            if ($newImage && $newImage->isValid()) {
+                                $fileName = time() . '-' . $newImage->getClientOriginalName();
+                                $newImage->move(public_path('storage/images/hostelImages'), $fileName);
 
-                        // Delete old file
-                        $oldPath = public_path('storage/images/hostelImages/' . $hostelImage->image);
-                        if (file_exists($oldPath)) {
-                            unlink($oldPath);
+                                // Delete old file
+                                $oldPath = public_path('storage/images/hostelImages/' . $hostelImage->image);
+                                if ($hostelImage->image && file_exists($oldPath)) {
+                                    unlink($oldPath);
+                                }
+
+                                $hostelImage->image = $fileName;
+                            }
                         }
 
-                        $hostelImage->image = $fileName;
+                        $hostelImage->caption = $data['caption'] ?? '';
+                        $hostelImage->slug = Str::slug($hostel->id . '-' . ($data['caption'] ?? ''));
+                        $hostelImage->save();
                     }
-
-                    $hostelImage->caption = $data['caption'];
-                    $hostelImage->slug = Str::slug($hostel->id . '-' . $data['caption']);
-                    $hostelImage->save();
                 }
             }
 
             //--- Handle newly uploaded values ---
             if ($request->hasFile('image_uploads')) {
                 foreach ($request->file('image_uploads') as $index => $imageFile) {
-                    if (!$imageFile) continue;
+                    if (!$imageFile || !$imageFile->isValid()) continue;
 
-                    $fileName = time() . '-' . $imageFile->getClientOriginalName();
+                    $fileName = time() . '-' . uniqid() . '-' . $imageFile->getClientOriginalName();
                     $imageFile->move(public_path('storage/images/hostelImages'), $fileName);
 
-                    // Find matching new image data using next available index
-                    $data = $request->images_data[$index + count($hostel->images)] ?? null;
-                    if ($data) {
-                        HostelImage::create([
-                            'hostel_id' => $hostel->id,
-                            'image' => $fileName,
-                            'caption' => $data['caption'],
-                            'slug' => Str::slug($hostel->id . '-' . $data['caption']),
-                        ]);
+                    // Find caption from corresponding images_data entry
+                    $caption = '';
+                    if (isset($request->images_data) && is_array($request->images_data)) {
+                        // Look for the matching new image entry
+                        foreach ($request->images_data as $data) {
+                            if (!isset($data['existing'])) {
+                                $caption = $data['caption'] ?? '';
+                                break;
+                            }
+                        }
                     }
+
+                    HostelImage::create([
+                        'hostel_id' => $hostel->id,
+                        'image' => $fileName,
+                        'caption' => $caption,
+                        'slug' => Str::slug($hostel->id . '-' . $caption),
+                    ]);
                 }
             }
 
             $block = Block::where('hostel_id', $hostel->id)->first();
 
-            $block->update([
-                'name' => $request->name,
-                'description' => $request->description,
-                'contact' => $request->contact,
-                'location'=> $request->location,
-                'email' => $request->email,
-                'slug' => Str::slug($request->name),
-            ]);
+            if ($block) {
+                $block->update([
+                    'name' => $request->name,
+                    'description' => $request->description,
+                    'contact' => $request->contact,
+                    'location' => $request->location,
+                    'email' => $request->email,
+                    'slug' => Str::slug($request->name),
+                ]);
+            } else {
+                Block::create([
+                    'token' => Str::uuid(),
+                    'hostel_id' => $hostel->id,
+                    'block_number' => 1,
+                    'name' => $request->name,
+                    'description' => $request->description,
+                    'contact' => $request->contact,
+                    'location' => $request->location,
+                    'email' => $request->email,
+                    'slug' => Str::slug($request->name),
+                ]);
+            }
 
             $hostel->amenities()->sync($request->amenities ?? []);
 
@@ -447,7 +474,6 @@ class HostelController extends Controller
                     'import_success' => $successCount
                 ]);
             }
-
         } catch (\Exception $e) {
             return redirect()->route('admin.hostel.index')->with([
                 'notification' => 'error',

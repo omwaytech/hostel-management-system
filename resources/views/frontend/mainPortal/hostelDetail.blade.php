@@ -44,6 +44,7 @@
                         </div>
                         @endforelse
                     </div>
+                    @if (count($hostelDetail->images) > 1)
                     <!-- Navigation Buttons -->
                     <div
                         class="swiper-button-prev !w-9 !h-9 md:!w-9 md:!h-9 bg-white rounded-full shadow-custom-combo border border-[#E1DFDF] !left-4 md:!left-6 after:!content-none flex items-center justify-center">
@@ -61,8 +62,10 @@
                                 stroke-miterlimit="10" stroke-width="0.8" d="m14 16l4-4m0 0l-4-4m4 4H6" />
                         </svg>
                     </div>
+                    @endif
                 </div>
 
+                @if (count($hostelDetail->images) > 1)
                 <!-- Thumbnail Slider -->
                 <div class="swiper thumbSwiper mt-4">
                     <div class="swiper-wrapper">
@@ -75,6 +78,7 @@
                         @endforeach
                     </div>
                 </div>
+                @endif
             </div>
 
             <!-- Room Features -->
@@ -228,7 +232,7 @@
                     <!-- Buttons -->
                     <div class="mt-6 mb-5 flex flex-wrap gap-3">
                         <button type="submit" id="submitFeedbackBtn"
-                            class=" button-color text-color hover:bg-[#023be4] hover:text-[white] border border-color px-6 py-2 rounded-full font-bold font-heading transition text-sm">
+                            class="flex items-center justify-center font-heading text-sm rounded-[50px]  px-6 py-2.5 text-center text-white duration-200 bg-[#2B6CB0] border-2 border-[#2B6CB0]  hover:bg-transparent hover:border-[#2B6CB0] hover:text-[#2B6CB0] focus:outline-none focus-visible:outline-[#2B6CB0]  focus-visible:ring-[#2B6CB0]">
                             Submit Feedback
                         </button>
                     </div>
@@ -644,12 +648,14 @@
                             class="w-full font-semibold py-3 text-base button-color text-color border border-[#E1E7EF] px-6 items-center justify-center gap-2 rounded-[50px] hover:bg-[#023BE4] hover:text-white transition-colors">
                             Apply For Hostel
                         </button> --}}
-                    <a href="{{ route('hostel.index', $hostelDetail->slug) }}">
-                        <button
-                            class="mt-5 w-full font-semibold py-3 text-base button-color text-color border border-[#E1E7EF] px-6 items-center justify-center gap-2 rounded-[50px] hover:bg-[#023BE4] hover:text-white transition-colors">
-                            Visit Hostel Page
-                        </button>
-                    </a>
+                    <div class="flex justify-center">
+                        <a href="{{ route('hostel.index', $hostelDetail->slug) }}">
+                            <button type="submit" id="submitFeedbackBtn"
+                                class=" flex items-center justify-center font-heading w-60 text-sm rounded-[50px]  px-6 py-2.5 text-center text-white duration-200 bg-[#2B6CB0] border-2 border-[#2B6CB0]  hover:bg-transparent hover:border-[#2B6CB0] hover:text-[#2B6CB0] focus:outline-none focus-visible:outline-[#2B6CB0]  focus-visible:ring-[#2B6CB0]">
+                                Visit Hostel Page
+                            </button>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

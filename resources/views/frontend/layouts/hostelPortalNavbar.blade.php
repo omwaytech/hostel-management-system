@@ -5,11 +5,11 @@
             <!-- Logo -->
             <a href="{{ route('hostel.index', $hostel->slug) }}" class="flex items-center">
                 @if (isset($hostelConfigs['navbar_logo']) && $hostelConfigs['navbar_logo'])
-                    <img src="{{ asset('storage/images/hostelConfigImages/' . $hostelConfigs['navbar_logo']) }}"
-                        class=" w-40 h-full object-contain" alt="{{ $hostel->name }} Logo">
+                <img src="{{ asset('storage/images/hostelConfigImages/' . $hostelConfigs['navbar_logo']) }}"
+                    class=" w-40 h-full object-contain" alt="{{ $hostel->name }} Logo">
                 @else
-                    <img src="{{ asset('assets/images/hostelPortal/logo.png') }}" class=" w-40 h-full object-contain"
-                        alt="MSH Logo">
+                <img src="{{ asset('assets/images/hostelPortal/logo.png') }}" class=" w-40 h-full object-contain"
+                    alt="MSH Logo">
                 @endif
             </a>
 
@@ -27,7 +27,7 @@
                 </a>
 
                 <a href="{{ route('hostel.room', $hostel->slug) }}"
-                    class="relative font-heading px-4 py-2 text-sm font-bold rounded-[2px] transition-all duration-300 {{ request()->routeIs('hostel.room') || request()->routeIs('hostel.roomdetail') || request()->routeIs('hostel.checkout') ? 'text-white bg-color' : 'text-white hover:text-white hover-bg-color' }}">
+                    class="relative font-heading px-4 py-2 text-sm font-bold rounded-[2px] transition-all duration-300 {{ request()->routeIs('hostel.room') || request()->routeIs('hostel.roomDetail') || request()->routeIs('hostel.checkout') ? 'text-white bg-color' : 'text-white hover:text-white hover-bg-color' }}">
                     Rooms
                 </a>
 
@@ -37,7 +37,7 @@
                 </a>
 
                 <a href="{{ route('hostel.blog', $hostel->slug) }}"
-                    class="relative font-heading px-4 py-2 text-sm font-bold rounded-[2px] transition-all duration-300 {{ request()->routeIs('hostel.blog') || request()->routeIs('hostel.blogdetails') ? 'text-white bg-color' : 'text-white hover:text-white hover-bg-color' }}">
+                    class="relative font-heading px-4 py-2 text-sm font-bold rounded-[2px] transition-all duration-300 {{ request()->routeIs('hostel.blog') || request()->routeIs('hostel.blogDetail') ? 'text-white bg-color' : 'text-white hover:text-white hover-bg-color' }}">
                     News & Blogs
                 </a>
 
@@ -86,7 +86,7 @@
             </a>
 
             <a href="{{ route('hostel.room', $hostel->slug) }}"
-                class="block px-3 py-2 font-heading text-sm font-bold rounded-md transition-all duration-300 {{ request()->routeIs('hostel.room') || request()->routeIs('hostel.roomdetail') || request()->routeIs('hostel.checkout') ? 'text-white bg-color' : 'text-black hover:bg-gray-50' }}">
+                class="block px-3 py-2 font-heading text-sm font-bold rounded-md transition-all duration-300 {{ request()->routeIs('hostel.room') || request()->routeIs('hostel.roomDetail') || request()->routeIs('hostel.checkout') ? 'text-white bg-color' : 'text-black hover:bg-gray-50' }}">
                 Rooms
             </a>
 
@@ -96,7 +96,7 @@
             </a>
 
             <a href="{{ route('hostel.blog', $hostel->slug) }}"
-                class="block px-3 py-2 font-heading text-sm font-bold rounded-md transition-all duration-300 {{ request()->routeIs('hostel.blog') || request()->routeIs('hostel.blogdetails') ? 'text-white bg-color' : 'text-black hover:bg-gray-50' }}">
+                class="block px-3 py-2 font-heading text-sm font-bold rounded-md transition-all duration-300 {{ request()->routeIs('hostel.blog') || request()->routeIs('hostel.blogDetail') ? 'text-white bg-color' : 'text-black hover:bg-gray-50' }}">
                 News & Blogs
             </a>
 

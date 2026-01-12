@@ -138,6 +138,7 @@
             <div id="hostel-container" class="flex flex-wrap gap-4 min-h-[400px]">
                 @include('frontend.mainPortal.partials.filteredHostel', ['hostels' => $hostels])
             </div>
+            @if($totalHostels > 6)
             <div class="text-center mt-8">
                 <button id="load-more"
                     class="font-heading text-sm rounded-[50px] px-6 py-1.5 text-center text-white duration-200 bg-[#2B6CB0] border-2 border-[#2B6CB0] nline-flex hover:bg-transparent hover:border-[#2B6CB0] hover:text-[#2B6CB0] focus:outline-none focus-visible:outline-[#2B6CB0]  focus-visible:ring-[#2B6CB0]">
@@ -147,6 +148,7 @@
                     No more hostels found
                 </p>
             </div>
+            @endif
         </div>
     </div>
 </div>
@@ -209,8 +211,8 @@
     });
 </script>
 <script>
-    let offset = 3; // initially loaded 3
-    const limit = 3;
+    let offset = 6; // initially loaded 6
+    const limit = 6;
 
     $('#load-more').on('click', function() {
         $.ajax({
@@ -229,9 +231,20 @@
                     $('#load-more').hide();
                     $('#no-more-message').removeClass('hidden');
                 } else {
+                    // Append the new hostels
                     $('#hostel-container').append(response);
-                    offset += limit;
-                    $('#load-more').prop('disabled', false).text('Load More');
+
+                    // Count how many hostel cards were loaded
+                    const loadedHostels = $(response).filter('div.flex-none').length;
+
+                    // If we loaded fewer hostels than the limit, there are no more to load
+                    if (loadedHostels < limit) {
+                        $('#load-more').hide();
+                        $('#no-more-message').removeClass('hidden');
+                    } else {
+                        offset += limit;
+                        $('#load-more').prop('disabled', false).text('Load More');
+                    }
                 }
             },
             error: function(xhr, status, error) {
