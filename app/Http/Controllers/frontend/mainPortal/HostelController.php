@@ -12,17 +12,17 @@ class HostelController extends Controller
 {
     public function hostel(Request $request)
     {
-        $limit = $request->get('limit', 3); // default 3
+        $limit = $request->get('limit', 6); // default 6
         $offset = $request->get('offset', 0);
 
-        $hostels = Hostel::with(['images', 'hostelReviews' => function($query) {
-                $query->where('is_approved', true);
-            }])
+        $hostels = Hostel::with(['images', 'hostelReviews' => function ($query) {
+            $query->where('is_approved', true);
+        }])
             ->where('is_deleted', 0)
             ->skip($offset)
             ->take($limit)
             ->get()
-            ->map(function($hostel) {
+            ->map(function ($hostel) {
                 // Calculate average rating and review count
                 $averageRating = $hostel->hostelReviews->avg('rating');
                 $reviewCount = $hostel->hostelReviews->count();
@@ -36,16 +36,20 @@ class HostelController extends Controller
         if ($request->ajax()) {
             return view('frontend.mainPortal.partials.filteredHostel', compact('hostels'))->render();
         }
+
+        // Get total count of hostels
+        $totalHostels = Hostel::where('is_deleted', 0)->count();
+
         $amenities = Amenity::where('is_deleted', 0)->where('is_published',  1)->get();
         $roomTypes = Occupancy::select('occupancy_type')
-        ->distinct()
-        ->pluck('occupancy_type');
-        return view('frontend.mainPortal.hostel', compact('hostels', 'amenities', 'roomTypes'));
+            ->distinct()
+            ->pluck('occupancy_type');
+        return view('frontend.mainPortal.hostel', compact('hostels', 'amenities', 'roomTypes', 'totalHostels'));
     }
 
     public function filter(Request $request)
     {
-        $query = Hostel::with(['blocks.occupancies', 'amenities', 'images', 'hostelReviews' => function($q) {
+        $query = Hostel::with(['blocks.occupancies', 'amenities', 'images', 'hostelReviews' => function ($q) {
             $q->where('is_approved', true);
         }]);
 
@@ -71,7 +75,7 @@ class HostelController extends Controller
             });
         }
 
-        $hostels = $query->get()->map(function($hostel) {
+        $hostels = $query->get()->map(function ($hostel) {
             // Calculate average rating and review count
             $averageRating = $hostel->hostelReviews->avg('rating');
             $reviewCount = $hostel->hostelReviews->count();
@@ -85,7 +89,7 @@ class HostelController extends Controller
         // Filter by rating if provided
         if ($request->filled('ratings') && is_array($request->ratings) && count($request->ratings) > 0) {
             $minRating = min($request->ratings); // Get the lowest selected rating
-            $hostels = $hostels->filter(function($hostel) use ($minRating) {
+            $hostels = $hostels->filter(function ($hostel) use ($minRating) {
                 return $hostel->average_rating >= $minRating;
             });
         }

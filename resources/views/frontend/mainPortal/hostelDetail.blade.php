@@ -59,6 +59,38 @@
                                     stroke-miterlimit="10" stroke-width="0.8" d="m14 16l4-4m0 0l-4-4m4 4H6" />
                             </svg>
                         </div>
+                        @endforelse
+                    </div>
+                    @if (count($hostelDetail->images) > 1)
+                    <!-- Navigation Buttons -->
+                    <div
+                        class="swiper-button-prev !w-9 !h-9 md:!w-9 md:!h-9 bg-white rounded-full shadow-custom-combo border border-[#E1DFDF] !left-4 md:!left-6 after:!content-none flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="text-color" width="16" height="16"
+                            viewBox="0 0 24 24">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-miterlimit="10" stroke-width="0.8" d="m10 16l-4-4m0 0l4-4m-4 4h12" />
+                        </svg>
+                    </div>
+                    <div
+                        class="swiper-button-next !w-9 !h-9 md:!w-9 md:!h-9 bg-white rounded-full shadow-custom-combo border border-[#E1DFDF] !right-4 md:!right-6 after:!content-none flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="text-color" width="16" height="16"
+                            viewBox="0 0 24 24">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-miterlimit="10" stroke-width="0.8" d="m14 16l4-4m0 0l-4-4m4 4H6" />
+                        </svg>
+                    </div>
+                    @endif
+                </div>
+
+                @if (count($hostelDetail->images) > 1)
+                <!-- Thumbnail Slider -->
+                <div class="swiper thumbSwiper mt-4">
+                    <div class="swiper-wrapper">
+                        @foreach ($hostelDetail->images as $image)
+                        <div class="swiper-slide">
+                            <img src="{{ asset('storage/images/hostelImages/' . $image->image) }}"
+                                alt="{{ $hostelDetail->name }}"
+                                class="w-full h-16 sm:h-20 object-cover cursor-pointer opacity-70 hover:opacity-100 transition-opacity duration-200">
                     </div>
 
                     <!-- Thumbnail Slider -->
@@ -74,6 +106,8 @@
                         </div>
                     </div>
                 </div>
+                @endif
+            </div>
 
                 <!-- Room Features -->
                 <div class="mt-10 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -224,6 +258,24 @@
                             </div>
                         </div>
 
+                    <!-- Thoughts -->
+                    <div class="mb-4">
+                        <label class="block text-sm text-gray-700 mb-2">Do you have any thoughts you'd like to
+                            share?</label>
+                        <textarea id="feedback_review_text" name="review_text"
+                            class="w-full min-h-[120px] text-sm font-light font-heading text-color px-4 py-3 border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-[#01217f]/60 focus:border-transparent outline-none"
+                            placeholder="Enter a description..."></textarea>
+                    </div>
+                    <!-- Buttons -->
+                    <div class="mt-6 mb-5 flex flex-wrap gap-3">
+                        <button type="submit" id="submitFeedbackBtn"
+                            class="flex items-center justify-center font-heading text-sm rounded-[50px]  px-6 py-2.5 text-center text-white duration-200 bg-[#2B6CB0] border-2 border-[#2B6CB0]  hover:bg-transparent hover:border-[#2B6CB0] hover:text-[#2B6CB0] focus:outline-none focus-visible:outline-[#2B6CB0]  focus-visible:ring-[#2B6CB0]">
+                            Submit Feedback
+                        </button>
+                    </div>
+                </form>
+                <!-- User Review start -->
+                <section id="reviews-section" class="py-12 md:py-16">
                         <!-- Thoughts -->
                         <div class="mb-4">
                             <label class="block text-sm text-gray-700 mb-2">Do you have any thoughts you'd like to
@@ -641,6 +693,10 @@
                             class="w-full font-semibold py-3 text-base button-color text-color border border-[#E1E7EF] px-6 items-center justify-center gap-2 rounded-[50px] hover:bg-[#023BE4] hover:text-white transition-colors">
                             Apply For Hostel
                         </button> --}}
+                    <div class="flex justify-center">
+                        <a href="{{ route('hostel.index', $hostelDetail->slug) }}">
+                            <button type="submit" id="submitFeedbackBtn"
+                                class=" flex items-center justify-center font-heading w-60 text-sm rounded-[50px]  px-6 py-2.5 text-center text-white duration-200 bg-[#2B6CB0] border-2 border-[#2B6CB0]  hover:bg-transparent hover:border-[#2B6CB0] hover:text-[#2B6CB0] focus:outline-none focus-visible:outline-[#2B6CB0]  focus-visible:ring-[#2B6CB0]">
                         <a href="{{ route('hostel.index', $hostelDetail->slug) }}">
                             <button
                                 class="mt-5 w-full font-semibold py-3 text-base button-color text-color border border-[#E1E7EF] px-6 items-center justify-center gap-2 rounded-[50px] hover:bg-[#023BE4] hover:text-white transition-colors">
